@@ -89,7 +89,7 @@ the use of this software, even if advised of the possibility of such damage.
 #endif
 
 // Constructor
-KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
+KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab, float threshold)
 {
 
     // Parameters equal in all cases
@@ -97,7 +97,8 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
     padding = 2.5; 
     //output_sigma_factor = 0.1;
     output_sigma_factor = 0.125;
-
+    // detection threshold
+    _threshold = threshold;
 
     if (hog) {    // HOG
         // VOT
@@ -158,7 +159,7 @@ KCFTracker::KCFTracker(bool hog, bool fixed_window, bool multiscale, bool lab)
 }
 
 // Initialize tracker 
-void KCFTracker::init(const cv::Rect &roi, cv::Mat image)
+void KCFTracker::init(cv::Mat image, const cv::Rect &roi)
 {
     _roi = roi;
     assert(roi.width >= 0 && roi.height >= 0);
@@ -170,7 +171,7 @@ void KCFTracker::init(const cv::Rect &roi, cv::Mat image)
     train(_tmpl, 1.0); // train with initial frame
  }
 // Update position based on the new frame
-cv::Rect KCFTracker::update(cv::Mat image)
+bool KCFTracker::update(cv::Mat image, cv::Rect &rect)
 {
     if (_roi.x + _roi.width <= 0) _roi.x = -_roi.width + 1;
     if (_roi.y + _roi.height <= 0) _roi.y = -_roi.height + 1;
@@ -207,6 +208,17 @@ cv::Rect KCFTracker::update(cv::Mat image)
             _roi.width *= scale_step;
             _roi.height *= scale_step;
         }
+
+        peak_value = new_peak_value;
+    }
+
+    // Return failed if peak value is too low
+    if (peak_value < _threshold) {
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = 0;
+        rect.height = 0;
+        return false;
     }
 
     // Adjust by cell size and _scale
@@ -222,7 +234,12 @@ cv::Rect KCFTracker::update(cv::Mat image)
     cv::Mat x = getFeatures(image, 0);
     train(x, interp_factor);
 
-    return _roi;
+    // copy _roi data to rect
+    rect.x = _roi.x;
+    rect.y = _roi.y;
+    rect.width = _roi.width;
+    rect.height = _roi.height;
+    return true;
 }
 
 

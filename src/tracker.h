@@ -27,8 +27,8 @@ public:
     Tracker()  {}
    virtual  ~Tracker() { }
 
-    virtual void init(const cv::Rect &roi, cv::Mat image) = 0;
-    virtual cv::Rect  update( cv::Mat image)=0;
+    virtual void init(cv::Mat image, const cv::Rect &roi) = 0;
+    virtual bool update(cv::Mat image, cv::Rect &rect) = 0;
 
 
 protected:

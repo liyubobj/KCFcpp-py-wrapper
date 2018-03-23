@@ -92,13 +92,13 @@ class KCFTracker : public Tracker
 {
 public:
     // Constructor
-    KCFTracker(bool hog = true, bool fixed_window = true, bool multiscale = true, bool lab = true);
+    KCFTracker(bool hog = true, bool fixed_window = true, bool multiscale = true, bool lab = true, float threshold = 0);
 
     // Initialize tracker 
-    virtual void init(const cv::Rect &roi, cv::Mat image);
+    virtual void init(cv::Mat image, const cv::Rect &roi);
     
     // Update position based on the new frame
-    virtual cv::Rect update(cv::Mat image);
+    virtual bool update(cv::Mat image, cv::Rect &rect);
 
     float interp_factor; // linear interpolation factor for adaptation
     float sigma; // gaussian kernel bandwidth
@@ -148,4 +148,5 @@ private:
     int _gaussian_size;
     bool _hogfeatures;
     bool _labfeatures;
+    float _threshold;
 };

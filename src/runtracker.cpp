@@ -22,6 +22,7 @@ int main(int argc, char* argv[]){
 	bool MULTISCALE = true;
 	bool SILENT = true;
 	bool LAB = false;
+    float THRESHOLD = 0.5;
 
 	for(int i = 0; i < argc; i++){
 		if ( strcmp (argv[i], "hog") == 0 )
@@ -41,7 +42,7 @@ int main(int argc, char* argv[]){
 	}
 	
 	// Create KCFTracker object
-	KCFTracker tracker(HOG, FIXEDWINDOW, MULTISCALE, LAB);
+	KCFTracker tracker(HOG, FIXEDWINDOW, MULTISCALE, THRESHOLD);
 
 	// Frame readed
 	Mat frame;
@@ -114,13 +115,15 @@ int main(int argc, char* argv[]){
 
 		// First frame, give the groundtruth to the tracker
 		if (nFrames == 0) {
-			tracker.init( Rect(xMin, yMin, width, height), frame );
+			tracker.init( frame, Rect(xMin, yMin, width, height) );
 			rectangle( frame, Point( xMin, yMin ), Point( xMin+width, yMin+height), Scalar( 0, 255, 255 ), 1, 8 );
 			resultsFile << xMin << "," << yMin << "," << width << "," << height << endl;
 		}
 		// Update
 		else{
-			result = tracker.update(frame);
+            cv::Rect result;
+            bool ok;
+			ok = tracker.update(frame, result);
 			rectangle( frame, Point( result.x, result.y ), Point( result.x+result.width, result.y+result.height), Scalar( 0, 255, 255 ), 1, 8 );
 			resultsFile << result.x << "," << result.y << "," << result.width << "," << result.height << endl;
 		}
