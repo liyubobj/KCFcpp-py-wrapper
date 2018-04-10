@@ -29,7 +29,7 @@ public:
 
     virtual void init(cv::Mat image, const cv::Rect &roi) = 0;
     virtual bool update(cv::Mat image, cv::Rect &rect) = 0;
-
+    virtual void train(cv::Mat image, float train_interp_factor) = 0;
 
 protected:
     cv::Rect_<float> _roi;

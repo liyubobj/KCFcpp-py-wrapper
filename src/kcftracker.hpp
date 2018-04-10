@@ -100,6 +100,9 @@ public:
     // Update position based on the new frame
     virtual bool update(cv::Mat image, cv::Rect &rect);
 
+    // train tracker with a single image
+    void train(cv::Mat x, float train_interp_factor);
+
     float interp_factor; // linear interpolation factor for adaptation
     float sigma; // gaussian kernel bandwidth
     float lambda; // regularization
@@ -114,9 +117,6 @@ public:
 protected:
     // Detect object in the current frame.
     cv::Point2f detect(cv::Mat z, cv::Mat x, float &peak_value);
-
-    // train tracker with a single image
-    void train(cv::Mat x, float train_interp_factor);
 
     // Evaluates a Gaussian kernel with bandwidth SIGMA for all relative shifts between input images X and Y, which must both be MxN. They must    also be periodic (ie., pre-processed with a cosine window).
     cv::Mat gaussianCorrelation(cv::Mat x1, cv::Mat x2);

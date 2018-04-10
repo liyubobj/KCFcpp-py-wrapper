@@ -6,6 +6,7 @@ cdef extern from "../src/kcftracker.hpp":
         KCFTracker(bool, bool, bool, bool, float)
         void init(Mat, Rect)
         bool update(Mat, Rect)
+        void train(Mat, float)
         
 cdef class kcftracker:
     cdef KCFTracker *classptr
@@ -23,3 +24,6 @@ cdef class kcftracker:
         cvrect = pylist2cvrect((0, 0, 0, 0))
         ok = self.classptr.update(nparray2cvmat(ary), cvrect)
         return ok, cvrect2pylist(cvrect)
+
+    def train(self, ary, interp_factor):
+        self.classptr.train(nparray2cvmat(ary), interp_factor)
